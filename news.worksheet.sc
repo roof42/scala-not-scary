@@ -1,49 +1,46 @@
 import java.util.{Calendar, Date}
 
-object Category extends scala.Enumeration {
-  type Category = Value
-  val Sport, Economy, Technology = Value
-}
-
-object State extends scala.Enumeration {
-  type State = Value
-  val Watching, Read, Archived = Value
-}
-
-import Category._
-import State._
-class News(
+case class News(
     val title: String,
     val url: String,
     val publishDate: Date,
     val category: Option[Category],
-    var state: State = State.Watching
+    val state: State = Watching
 )
+
 object News {
   def read(news: News): News = {
     news.state match {
-      case State.Watching => {
-        news.state = State.Read
-        news
-      }
-      case _ => news
+      case Watching => news.copy(state = Read)
+      case _        => news
     }
   }
-  def moveToArchived(news: News): News = {
-    news.state = State.Archived
-    news
+
+  def archived(news: News): News = {
+    news.copy(state = Archived)
   }
 }
+
+sealed abstract class Category
+case object Sport extends Category
+case object Economy extends Category
+case object Technology extends Category
+
+sealed abstract class State
+case object Watching extends State
+case object Read extends State
+case object Archived extends State
 
 val a = new News(
   title = "Bitcoin hit new high",
   url = "http://somewebsite.com/news/economic/123455",
   publishDate = Calendar.getInstance().getTime(),
-  category = Some(Category.Economy)
+  category = Some(Economy)
 )
+
 val c = News.read(a)
 c.state
 News.read(c)
 c.state
-val b = News.moveToArchived(a)
+val b = News.archived(a)
 b.state
