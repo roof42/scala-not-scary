@@ -1,14 +1,14 @@
 import scalaj.http._
-import scala.xml.XML
+import scala.xml.{XML, Elem, NodeSeq, Node}
 import domain._
 import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
 object MainProgram extends App {
-  val response: HttpResponse[String] = Http(
+  val response: String = Http(
     "http://feeds.bbci.co.uk/news/rss.xml"
-  ).asString
-  val elements = XML.loadString(response.body)
-  val items = elements \\ "channel" \\ "item"
+  ).asString.body
+  val elements:Elem = XML.loadString(response)
+  val items: NodeSeq = elements \\ "channel" \\ "item"
   val headlines = for {
     item <- items
   } yield (
